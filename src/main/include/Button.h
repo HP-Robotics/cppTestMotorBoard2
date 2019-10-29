@@ -2,8 +2,18 @@
 
 class Button {
     public:
-        Button(frc::Joystick j);
-        Boolean GetState();
+        Button(*frc::Joystick, int);
+        bool getState();
+        void update();
+        void reset();
+        void toggleOff();
+        void toggleOn();
+
     private:
-        Boolean output;
+        bool state;
+        bool lastState;
+        bool held;
+        bool changed;
+        bool cbutton;
+        frc::Joystick *joystick;
 }
