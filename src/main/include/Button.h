@@ -2,7 +2,7 @@
 
 class Button {
     public:
-        Button(*frc::Joystick, int);
+        Button(frc::Joystick *j, int b);
         bool getState();
         void update();
         void reset();
@@ -15,5 +15,6 @@ class Button {
         bool held;
         bool changed;
         bool cbutton;
+        int button;
         frc::Joystick *joystick;
-}
+};

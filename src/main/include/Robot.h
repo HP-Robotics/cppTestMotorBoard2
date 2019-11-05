@@ -16,6 +16,7 @@
 #include <frc/Encoder.h>
 #include <frc/PIDController.h>
 #include "TalonPIDOutput.h"
+#include "Button.h"
 
 class Robot : public frc::TimedRobot {
 
@@ -30,6 +31,7 @@ class Robot : public frc::TimedRobot {
 
  private:
   frc::Joystick *joystick;
+  Button *button;
   TalonSRX *talon1;
   TalonSRX *talon2;
   frc::Encoder *encoder;

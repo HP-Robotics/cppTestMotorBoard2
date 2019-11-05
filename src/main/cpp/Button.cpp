@@ -1,6 +1,6 @@
 #include "Button.h"
 
-Button::Button(frc::Joystick j, int b) {
+Button::Button(frc::Joystick *j, int b) {
     joystick = j;
     button = b;
     held = false;
@@ -9,12 +9,12 @@ Button::Button(frc::Joystick j, int b) {
     lastState = false;
 }
 
-Button::getState() {
+bool Button::getState() {
     return state;
 }
 
-Button::update() {
-    cbutton = joystick.GetRawButton(button);
+void Button::update() {
+    cbutton = joystick->GetRawButton(button);
 
     if (cbutton && (cbutton != lastState)) {
         state = !state;
@@ -27,17 +27,17 @@ Button::update() {
     lastState = cbutton;
 }
 
-Button::reset() {
+void Button::reset() {
     state = false;
     lastState = false;
     changed = false;
 }
 
-Button::toggleOff() {
+void Button::toggleOff() {
     reset();
     update();
 }
 
-Button::toggleOn() {
+void Button::toggleOn() {
     state = true;
 }

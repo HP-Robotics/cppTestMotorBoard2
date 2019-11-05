@@ -24,6 +24,7 @@ void Robot::RobotInit() {
   joystick = new frc::Joystick(0);
   talon1 = new TalonSRX(31);
   talon2 = new TalonSRX(3);
+  button = new Button(joystick, 1);
   //encoder = new frc::Encoder(0, 1, false, frc::Encoder::EncodingType::k4X);
   pidOutput = new TalonPIDOutput(talon1);
   pidController = new frc::PIDController(0, 0, 0, encoder, pidOutput);
@@ -76,10 +77,15 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  //std::cout << "Vertical Joystick value: " << joystick->GetRawAxis(1) << " Encoder Value: " << encoder->GetRaw() << std::endl;
+  std::cout << "Vertical Joystick value: " << joystick->GetRawAxis(1) << " Encoder Value: " << encoder->GetRaw() << std::endl;
   std::cout << "Horizontal Joystick value: " << joystick->GetRawAxis(0) << " No encoder." << std::endl;
-  talon1->Set(ControlMode::PercentOutput, joystick->GetRawAxis(1));
-  talon2->Set(ControlMode::PercentOutput, -joystick->GetRawAxis(1));
+  std::cout << "Button Toggle Value: " << button->getState() << " Button Instantaneous Value: " << joystick->GetRawButton(1) << std::endl;
+  if(button->getState()){
+    talon1->Set(ControlMode::PercentOutput, 1);
+  }else{
+    talon1->Set(ControlMode::PercentOutput, 0);
+  }
+  button->update();
 }
 
 void Robot::TestPeriodic() {}
