@@ -13,6 +13,10 @@ bool Button::getState() {
     return state;
 }
 
+bool Button::isChanged() {
+    return changed;
+}
+
 void Button::update() {
     cbutton = joystick->GetRawButton(button);
 

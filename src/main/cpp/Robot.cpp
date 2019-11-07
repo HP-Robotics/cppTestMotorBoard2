@@ -18,7 +18,7 @@ void Robot::RobotInit() {
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
   frc::SmartDashboard::PutNumber("P: ", 0.0);
   frc::SmartDashboard::PutNumber("I: ", 0.0);
-  frc::SmartDashboard::PutNumber("D: ", 0.0);
+  frc::SmartDashboard::PutNumber("realD: ", 0.0);
   frc::SmartDashboard::PutNumber("Setpoint: ", 0.0);
 
   joystick = new frc::Joystick(0);
@@ -27,7 +27,7 @@ void Robot::RobotInit() {
   button = new Button(joystick, 1);
   encoder = new frc::Encoder(0, 1, false, frc::Encoder::EncodingType::k4X);
   pidOutput = new TalonPIDOutput(talon1);
-  pidController = new frc::PIDController(0.01, 0, 0, encoder, pidOutput);
+  pidController = new frc::PIDController(0, 0, 0, encoder, pidOutput);
   pidController->SetSetpoint(0);
 }
 
@@ -78,16 +78,36 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  std::cout << "Vertical Joystick value: " << joystick->GetRawAxis(1) << " Encoder Value: " << encoder->GetRaw() << std::endl;
-  std::cout << "Horizontal Joystick value: " << joystick->GetRawAxis(0) << " No encoder." << std::endl;
-  std::cout << "Button Toggle Value: " << button->getState() << " Button Instantaneous Value: " << joystick->GetRawButton(1) << std::endl;
-  if(button->getState()){
-    pidController->Enable();
-  }else{
-    talon1->Set(ControlMode::PercentOutput, joystick->GetRawAxis(1));
-    pidController->Disable();
-  }
+  //std::cout << "Vertical Joystick value: " << joystick->GetRawAxis(1) << " Encoder Value: " << encoder->GetRaw() << std::endl;
+  //std::cout << "Horizontal Joystick value: " << joystick->GetRawAxis(0) << " No encoder." << std::endl;
+  //std::cout << "Button Toggle Value: " << button->getState() << " Button Instantaneous Value: " << joystick->GetRawButton(1) << std::endl;
+
   button->update();
+  pidController->SetP(frc::SmartDashboard::GetNumber("P: ", 0.0));
+  pidController->SetI(frc::SmartDashboard::GetNumber("I: ", 0.0));
+  pidController->SetD(frc::SmartDashboard::GetNumber("realD: ", 0.0));
+
+  std::cout << "PID Controller state: " << pidController->IsEnabled() << " Changed: " << button->isChanged() << " Button: " << button->getState() << std::endl;
+
+  if(button->isChanged() && button->getState()) {
+
+    pidController->Enable();
+    std::cout << "PID Control enabled." << std::endl;
+
+  }else if(button->isChanged() && !button->getState()) {
+
+    pidController->Disable();
+    std::cout << "PID Control disabled." << std::endl;
+
+  }else if (!button->getState()) {
+
+    talon1->Set(ControlMode::PercentOutput, joystick->GetRawAxis(1));
+    //pidController->Disable();
+  }
+  
+
+  //talon1->Set(ControlMode::PercentOutput, joystick->GetRawAxis(1));
+  
 }
 
 void Robot::TestPeriodic() {}

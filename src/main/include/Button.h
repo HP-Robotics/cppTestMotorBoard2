@@ -8,6 +8,7 @@ class Button {
         void reset();
         void toggleOff();
         void toggleOn();
+        bool isChanged();
 
     private:
         bool state;
