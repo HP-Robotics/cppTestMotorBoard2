@@ -31,12 +31,17 @@ class Robot : public frc::TimedRobot {
 
  private:
   frc::Joystick *joystick;
-  Button *button;
+
+  Button *buttonPID;
+  Button *buttonShoot;
+
   TalonSRX *talon1;
   TalonSRX *talon2;
+  
   frc::Encoder *encoder;
   frc::PIDController *pidController;
   TalonPIDOutput *pidOutput;
+  bool enablePID;
 
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoNameDefault = "Default";

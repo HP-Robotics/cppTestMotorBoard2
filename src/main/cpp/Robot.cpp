@@ -24,11 +24,15 @@ void Robot::RobotInit() {
   joystick = new frc::Joystick(0);
   talon1 = new TalonSRX(31);
   talon2 = new TalonSRX(3);
-  button = new Button(joystick, 1);
+
+  buttonPID = new Button(joystick, 2);
+  buttonShoot = new Button(joystick, 1);
+
   encoder = new frc::Encoder(0, 1, false, frc::Encoder::EncodingType::k4X);
   pidOutput = new TalonPIDOutput(talon1);
   pidController = new frc::PIDController(0, 0, 0, encoder, pidOutput);
   pidController->SetSetpoint(0);
+  bool enablePID = false;
 }
 
 /**
@@ -82,27 +86,43 @@ void Robot::TeleopPeriodic() {
   //std::cout << "Horizontal Joystick value: " << joystick->GetRawAxis(0) << " No encoder." << std::endl;
   //std::cout << "Button Toggle Value: " << button->getState() << " Button Instantaneous Value: " << joystick->GetRawButton(1) << std::endl;
 
-  button->update();
+  buttonPID->update();
+  buttonShoot->update();
   pidController->SetP(frc::SmartDashboard::GetNumber("P: ", 0.0));
   pidController->SetI(frc::SmartDashboard::GetNumber("I: ", 0.0));
   pidController->SetD(frc::SmartDashboard::GetNumber("realD: ", 0.0));
 
-  std::cout << "PID Controller state: " << pidController->IsEnabled() << " Changed: " << button->isChanged() << " Button: " << button->getState() << std::endl;
+  std::cout << "PID Controller state: " << pidController->IsEnabled() << " Changed: " << buttonPID->isChanged() << " Button: " << buttonPID->getState() << std::endl;
 
-  if(button->isChanged() && button->getState()) {
+  if(enablePID) {
+    if(buttonPID->isChanged() && buttonPID->getState()) {
 
-    pidController->Enable();
-    std::cout << "PID Control enabled." << std::endl;
+      pidController->Enable();
+      std::cout << "PID Control enabled." << std::endl;
 
-  }else if(button->isChanged() && !button->getState()) {
+    }else if(buttonPID->isChanged() && !buttonPID->getState()) {
 
-    pidController->Disable();
-    std::cout << "PID Control disabled." << std::endl;
+      pidController->Disable();
+      std::cout << "PID Control disabled." << std::endl;
 
-  }else if (!button->getState()) {
+    }else if (!buttonPID->getState()) {
 
-    talon1->Set(ControlMode::PercentOutput, joystick->GetRawAxis(1));
-    //pidController->Disable();
+      talon1->Set(ControlMode::PercentOutput, joystick->GetRawAxis(1));
+      //pidController->Disable();
+    } else {
+      
+    }
+  } else {
+    std::cout << "Shooting mode enabled." << std::endl;
+    if (buttonShoot->getState()){
+      std::cout << "Firing." << std::endl;
+      talon1->Set(ControlMode::PercentOutput, 1.0);
+      talon2->Set(ControlMode::PercentOutput, -1.0);
+    } else if (!buttonShoot->getState()){
+      std::cout << "Fine control mode enabled." << std::endl;
+      talon1->Set(ControlMode::PercentOutput, joystick->GetRawAxis(1));
+      talon2->Set(ControlMode::PercentOutput, -joystick->GetRawAxis(1));
+    }
   }
   
 
