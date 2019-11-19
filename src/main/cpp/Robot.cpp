@@ -25,14 +25,22 @@ void Robot::RobotInit() {
   talon1 = new TalonSRX(31);
   talon2 = new TalonSRX(3);
 
+  solenoid = new frc::DoubleSolenoid {0,1};
+
   buttonPID = new Button(joystick, 2);
   buttonShoot = new Button(joystick, 1);
+  buttonPush = new Button(joystick, 3);
 
   encoder = new frc::Encoder(0, 1, false, frc::Encoder::EncodingType::k4X);
   pidOutput = new TalonPIDOutput(talon1);
   pidController = new frc::PIDController(0, 0, 0, encoder, pidOutput);
   pidController->SetSetpoint(0);
   bool enablePID = false;
+
+  compressor = new frc::Compressor(0);
+  compressor->SetClosedLoopControl(true);
+  compressor->SetClosedLoopControl(false);
+  compressor->Start();
 }
 
 /**
@@ -88,11 +96,12 @@ void Robot::TeleopPeriodic() {
 
   buttonPID->update();
   buttonShoot->update();
+  buttonPush->update();
   pidController->SetP(frc::SmartDashboard::GetNumber("P: ", 0.0));
   pidController->SetI(frc::SmartDashboard::GetNumber("I: ", 0.0));
   pidController->SetD(frc::SmartDashboard::GetNumber("realD: ", 0.0));
 
-  std::cout << "PID Controller state: " << pidController->IsEnabled() << " Changed: " << buttonPID->isChanged() << " Button: " << buttonPID->getState() << std::endl;
+  //std::cout << "PID Controller state: " << pidController->IsEnabled() << " Changed: " << buttonPID->isChanged() << " Button: " << buttonPID->getState() << std::endl;
 
   if(enablePID) {
     if(buttonPID->isChanged() && buttonPID->getState()) {
@@ -113,16 +122,28 @@ void Robot::TeleopPeriodic() {
       
     }
   } else {
-    std::cout << "Shooting mode enabled." << std::endl;
+    
+    //std::cout << "Shooting mode enabled." << std::endl;
     if (buttonShoot->getState()){
-      std::cout << "Firing." << std::endl;
+      //std::cout << "Firing." << std::endl;
       talon1->Set(ControlMode::PercentOutput, 1.0);
       talon2->Set(ControlMode::PercentOutput, -1.0);
     } else if (!buttonShoot->getState()){
-      std::cout << "Fine control mode enabled." << std::endl;
+      //std::cout << "Fine control mode enabled." << std::endl;
       talon1->Set(ControlMode::PercentOutput, joystick->GetRawAxis(1));
       talon2->Set(ControlMode::PercentOutput, -joystick->GetRawAxis(1));
     }
+
+    ///////////////////////////////////////////////////////////////////////
+    if (buttonPush->getState()) {
+      solenoid->Set(frc::DoubleSolenoid::Value::kForward);
+      std::cout << "Extended cylinder." << std::endl;
+    } else if (!buttonPush->getState()) {
+      solenoid->Set(frc::DoubleSolenoid::Value::kReverse);
+      std::cout << "Retracted cylinder." << std::endl;
+    }
+
+    std::cout << compressor->Enabled() << " " << compressor->GetPressureSwitchValue() << " " << std::endl;
   }
   
 

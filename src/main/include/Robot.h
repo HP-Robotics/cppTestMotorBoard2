@@ -15,6 +15,8 @@
 #include "ctre/Phoenix.h"
 #include <frc/Encoder.h>
 #include <frc/PIDController.h>
+#include <frc/DoubleSolenoid.h>
+#include <frc/Compressor.h>
 #include "TalonPIDOutput.h"
 #include "Button.h"
 
@@ -31,9 +33,15 @@ class Robot : public frc::TimedRobot {
 
  private:
   frc::Joystick *joystick;
+  
+  frc::DoubleSolenoid *solenoid;
+  bool hasPushed;
 
   Button *buttonPID;
   Button *buttonShoot;
+  Button *buttonPush;
+
+  frc::Compressor *compressor;
 
   TalonSRX *talon1;
   TalonSRX *talon2;
